@@ -223,7 +223,7 @@ if(isLogged()) {
 	Display <strong><?php echo $display_on_page; ?> </strong> to <strong
 		class='increment'><?php echo $max_on_page; ?> </strong> of <strong
 		class='increment'><?php echo $total_items; ?> </strong> URLs
-		<?php if( $total_items_clicks !== false ) echo ", counting <strong>$total_items_clicks</strong> " . yourls_plural('click', $total_items_clicks) ?>
+		<?php if( $total_items_clicks !== false ) echo ", counting <strong>$total_items_clicks</strong> " . yourls_n('click', $total_items_clicks) ?>
 	.
 </p>
 		<?php } ?>

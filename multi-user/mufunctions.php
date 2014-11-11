@@ -18,30 +18,33 @@ if(!defined('YOURLS_MULTIUSER_CAPTCHA')) {
 if(!defined('YOURLS_MULTIUSER_CAPTCHA_PUBLIC_KEY')) {
 	define('YOURLS_MULTIUSER_CAPTCHA', false);
 }
+
 if(!defined('YOURLS_MULTIUSER_CAPTCHA_PRIVATE_KEY')) {
 	define('YOURLS_MULTIUSER_CAPTCHA', false);
 }
+
 if(!defined('YOURLS_MULTIUSER_CAPTCHA_THEME')) { 
 	define('YOURLS_MULTIUSER_CAPTCHA_THEME', 'white');
 }
+
 if(!defined('YOURLS_MULTIUSER_ANONYMOUS')) { 
 	define('YOURLS_MULTIUSER_ANONYMOUS', true);
 }
 
-if(!define('YOURLS_MULTIUSER_LDAP_HOST')) {
-    define('YOURLS_MULTIUSER_LDAP',false)
+if(!defined('YOURLS_MULTIUSER_LDAP_HOST')) {
+    	define('YOURLS_MULTIUSER_LDAP', false);
 }
 
-if(!define('YOURLS_MULTIUSER_LDAP_PORT')) {
-    define('YOURLS_MULTIUSER_LDAP',false)
+if(!defined('YOURLS_MULTIUSER_LDAP_PORT')) {
+    define('YOURLS_MULTIUSER_LDAP',false);
 }
 
-if(!define('YOURLS_MULTIUSER_LDAP_USERBASEDN')) {
-    define('YOURLS_MULTIUSER_LDAP',false)
+if(!defined('YOURLS_MULTIUSER_LDAP_USERBASEDN')) {
+    define('YOURLS_MULTIUSER_LDAP',false);
 }
 
-if(!define('YOURLS_MULTIUSER_LDAP_GROUPNAME')) {
-    define('YOURLS_MULTIUSER_LDAP_RESTRICT',false)
+if(!defined('YOURLS_MULTIUSER_LDAP_GROUPNAME')) {
+    define('YOURLS_MULTIUSER_LDAP_RESTRICT',false);
 }
 
 function captchaEnabled() {
@@ -304,11 +307,9 @@ function isLogged() {
 }
 
 function isAdmin() { 
+	global $yourls_multiuser_admin_users;
+
 	if(!empty($_SESSION['user']) && isset($_SESSION['user'])) { 
-		if (!empty($yourls_multiuser_admin_users)) {
-			$yourls_multiuser_admin_users = array( 'admin' );
-		}
-		
 		foreach ( $yourls_multiuser_admin_users as $admin ) {
 			if (($_SESSION['user']['user']) == $admin ) {
 				return true;
