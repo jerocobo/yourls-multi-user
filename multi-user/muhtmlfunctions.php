@@ -101,8 +101,6 @@ function mu_html_menu() {
 	} else {
 		?>
 	<li><a href="<?php echo muAdminUrl('index.php'); ?>">Log in</a></li>
-	<li><a href="<?php echo muAdminUrl('index.php?act=joinform'); ?>">Sign
-			in</a></li>
 			<?php
 	}
 	?>

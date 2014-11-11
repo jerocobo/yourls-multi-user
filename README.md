@@ -27,10 +27,12 @@ YOURLS_MULTIUSER_CAPTCHA_PUBLIC_KEY - Public API Key to Recaptcha, get yours: ht
 YOURLS_MULTIUSER_CAPTCHA_PRIVATE_KEY - Private API Key to Recaptcha.
 YOURLS_MULTIUSER_CAPTCHA_THEME - ReCAPTCHA theme.
 YOURLS_MULTIUSER_ANONYMOUS - True if Anonymous user can shorturl, false if just logged users can shorturl.
-YOURLS_MULTIUSER_LDAP_SERVER
-YOURLS_MULTIUSER_LDAP_BASEDN
-YOURLS_MULTIUSER_LDAP_GROUPDN 
-YOURLS_MULTIUSER_LDAP_GROUPNAME - Members of this group will be allowed to login.  If no group is specified, any user that can authenticate successfully will be able to login.
-YOURLS_MULTIUSER_FORCE_SSL - TRUE/FALSE - forces the login to use SSL
+YOURLS_MULTIUSER_LDAP - TRUE/FALSE - use LDAP for authentication
+YOURLS_MULTIUSER_LDAP_HOST - hostname of the LDAP server
+YOURLS_MULTIUSER_LDAP_PORT - port for LDAP connection ( typicall LDAP=389, LDAPS=636 )
+YOURLS_MULTIUSER_LDAP_USERBASEDN - the baseDN in LDAP to begin looking for users
+YOURLS_MULTIUSER_LDAP_RESTRICT - TRUE/FALSE - restrict logins to a particular group of users
+YOURLS_MULTIUSER_LDAP_GROUPNAME - the LDAP group name of the group os users allowed to login 
+
 
 It may also prove to be useful to add a short URL for the keyword login that points to http://<sitefqdn>/user/plugins/multi-user .

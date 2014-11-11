@@ -1,5 +1,6 @@
 <?php
 session_start();
+define('YOURLS_ADMIN', true );
 define('YOURLS_AJAX', true);
 include "../../../includes/load-yourls.php";
 
@@ -46,7 +47,7 @@ switch( $action ) {
 			echo json_encode(array('success'=>$query));
 		} else {
 			// TODO: SHOW ERROR!
-			die();
+			die("Not URL owner.");
 		}
 		break;
 

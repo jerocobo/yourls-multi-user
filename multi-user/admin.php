@@ -130,7 +130,9 @@ if(isLogged()) {
 	// Get URLs Count for current filter, total links in DB & total clicks
 	$user = $_SESSION["user"];
 	$tableUrlToUser = YOURLS_DB_TABLE_URL_TO_USER;
-	$where .= " and `keyword` in (select url_keyword from `$tableUrlToUser` where `users_user_id` = '".$user["id"]."') ";
+	if (! isAdmin() ) {
+		$where .= " and `keyword` in (select url_keyword from `$tableUrlToUser` where `users_user_id` = '".$user["id"]."') ";
+	}
 	list( $total_urls, $total_clicks ) = array_values( yourls_get_db_stats($where) );
 	if ( $where ) {
 		list( $total_items, $total_items_clicks ) = array_values( yourls_get_db_stats( $where ) );

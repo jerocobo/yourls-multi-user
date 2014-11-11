@@ -23,17 +23,21 @@ if(!isLogged()) {
 		case "login":
 			$username = yourls_escape($_POST['username']);
 			$password = $_POST['password'];
-			if(!empty($username) && !empty($password)) {
+			if ( empty($username) || empty($password ) ) {
+				$error_msg = "Neither username or password can be blank.";
+				require_once 'form.php';
+			} else {
 				if(isValidUser($username, $password)) {
 					$token = getUserTokenByEmail($username);
 					$id = getUserIdByToken($token);
 					$_SESSION['user'] = array("id" => $id, "user" => $username, "token" => $token);
 					yourls_redirect("index.php");
 				} else {
-					$error_msg = "Problems to login.";
+					$error_msg = "Wrong username or password.";
 					require_once 'form.php';
 				}
 			}
+
 			break;
 		case "joinform":
 			require_once 'formjoin.php';

@@ -28,6 +28,22 @@ if(!defined('YOURLS_MULTIUSER_ANONYMOUS')) {
 	define('YOURLS_MULTIUSER_ANONYMOUS', true);
 }
 
+if(!define('YOURLS_MULTIUSER_LDAP_HOST')) {
+    define('YOURLS_MULTIUSER_LDAP',false)
+}
+
+if(!define('YOURLS_MULTIUSER_LDAP_PORT')) {
+    define('YOURLS_MULTIUSER_LDAP',false)
+}
+
+if(!define('YOURLS_MULTIUSER_LDAP_USERBASEDN')) {
+    define('YOURLS_MULTIUSER_LDAP',false)
+}
+
+if(!define('YOURLS_MULTIUSER_LDAP_GROUPNAME')) {
+    define('YOURLS_MULTIUSER_LDAP_RESTRICT',false)
+}
+
 function captchaEnabled() {
 	if(defined('YOURLS_MULTIUSER_CAPTCHA') && (YOURLS_MULTIUSER_CAPTCHA == true))
 		return true;
@@ -122,10 +138,67 @@ function createRandonToken() {
 function isValidUser($user, $pass) {
 	global $ydb;
 	$table = YOURLS_DB_TABLE_USERS;
-	$pass = md5($pass);
-	$results = $ydb->get_results("select user_token from `$table` where `user_email` = '$user' AND user_password = '$pass'");
-	if(!empty($results)) {
+
+    if ( YOURLS_MULTIUSER_LDAP ) {	
+		/* LDAP auth code goes here */
+		$ldapOptions =  array(
+			'host' 		=>	YOURLS_MULTIUSER_LDAP_HOST,
+			'port'			=> 	YOURLS_MULTIUSER_LDAP_PORT,
+			'useStartTls'		=>	false,
+			'userBaseDN'		=> 	YOURLS_MULTIUSER_LDAP_USERBASEDN,
+		);
+		
+		$ldapUser = "cn=".$user.",".$ldapOptions[userBaseDN];
+	
+		$ldapDS = ldap_connect($ldapOptions[host]) 
+			or die("Could not connect to {$ldapOptions[host]}");
+
+		$ldapBind = ldap_bind( $ldapDS, $ldapUser, $pass );
+
+		if ( $ldapBind ) {
+			$boguspass = "XXXXXXXXXXXXXXXXXXXXXXXX";
+			/* we have a winner  */
+			/* can they use the service based upon group membership */
+			$allowed = false;
+			if ( YOURLS_MULTIUSER_LDAP_RESTRICT ) {
+				$ldapFilter = "(cn=*$user*)";
+				$ldapAttributes = array("mail", "memberof" );
+				$ldapSearchResults = ldap_Search( $ldapDS, $ldapUser, $ldapFilter );
+				$ldapInfo = ldap_get_entries($ldapDS, $ldapSearchResults);
+				
+				foreach  ( $ldapInfo[0]['memberof'] as $grp ) {
+					if ( $grp == YOURLS_MULTIUSER_LDAP_GROUPNAME ) {
+						$allowed = true;
+						break;
+					}
+				}
+			} else {
+				$allowed = true;
+			}
+
+			/* Clean up ldap connection */
+			ldap_unbind( $ldapDS );
+			/* ldap_close( $ldapDS ); */
+			
+			if ( !$allowed ) {
+				return false;
+			}
+		}
+		
+		/* are they in the local database? */
+		$results = $ydb->get_results("select user_token from `$table` where `user_email` = '$user' AND user_password = '$boguspass'");
+		if(empty($results)) {
+			/* user is not in the database, so insert them */
+			$ydb->query("insert into `$table` (user_email, user_password, user_token) values ('$user', '$boguspass', '".createRandonToken()."' )");
+		}
 		return true;
+	} else {
+		/* see if we have a local account  */
+		$pass = md5($pass);
+		$results = $ydb->get_results("select user_token from `$table` where `user_email` = '$user' and `user_password` = '$pass'");
+		if(!empty($results)) {
+			return true;
+		}
 	}
 	return false;
 }
@@ -150,8 +223,13 @@ function getUserIdByToken($token) {
 
 function verifyUrlOwner($keyword, $userId) {
 	global $ydb;
+	if ( isAdmin() ) {
+		return true;
+	}
+	
 	$table = YOURLS_DB_TABLE_URL_TO_USER;
 	$results = $ydb->get_results("select url_keyword from `$table` where `url_keyword` = '$keyword' AND users_user_id = '$userId'");
+	
 	if (isset($results)) {
 		return true;
 	}
@@ -211,12 +289,26 @@ ROW;
 
 function muAdminUrl($page = '') {
 	$admin = YOURLS_SITE . '/user/plugins/multi-user/' . $page;
+	if ( defined ( 'YOURLS_ADMIN_SSL' ) ) {
+		$admin = str_replace('http:', 'https:', $admin );
+	}
+
 	return yourls_apply_filter( 'admin_url', $admin, $page );
 }
 
 function isLogged() { 
 	if(!empty($_SESSION['user']) && isset($_SESSION['user'])) { 
 		return true;
+	}
+	return false;
+}
+
+function isAdmin() { 
+	if(!empty($_SESSION['user']) && isset($_SESSION['user'])) { 
+	/* admin hard coded admin user for now.  later update to allow it to be defined or possibly a group */
+		if (($_SESSION['user']['user']) == 'admin') {
+			return true;
+		}
 	}
 	return false;
 }
