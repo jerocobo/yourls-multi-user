@@ -305,9 +305,14 @@ function isLogged() {
 
 function isAdmin() { 
 	if(!empty($_SESSION['user']) && isset($_SESSION['user'])) { 
-	/* admin hard coded admin user for now.  later update to allow it to be defined or possibly a group */
-		if (($_SESSION['user']['user']) == 'admin') {
-			return true;
+		if (!empty($yourls_multiuser_admin_users)) {
+			$yourls_multiuser_admin_users = array( 'admin' );
+		}
+		
+		foreach ( $yourls_multiuser_admin_users as $admin ) {
+			if (($_SESSION['user']['user']) == $admin ) {
+				return true;
+			}
 		}
 	}
 	return false;

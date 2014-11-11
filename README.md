@@ -27,6 +27,7 @@ YOURLS_MULTIUSER_CAPTCHA_PUBLIC_KEY - Public API Key to Recaptcha, get yours: ht
 YOURLS_MULTIUSER_CAPTCHA_PRIVATE_KEY - Private API Key to Recaptcha.
 YOURLS_MULTIUSER_CAPTCHA_THEME - ReCAPTCHA theme.
 YOURLS_MULTIUSER_ANONYMOUS - True if Anonymous user can shorturl, false if just logged users can shorturl.
+$yourls_multiuser_admin_users - array of usernames that have administrative privileges, can be either local or LDAP accounts
 YOURLS_MULTIUSER_LDAP - TRUE/FALSE - use LDAP for authentication
 YOURLS_MULTIUSER_LDAP_HOST - hostname of the LDAP server
 YOURLS_MULTIUSER_LDAP_PORT - port for LDAP connection ( typicall LDAP=389, LDAPS=636 )
