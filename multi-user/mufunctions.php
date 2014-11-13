@@ -141,9 +141,12 @@ function createRandonToken() {
 function isValidUser($user, $pass) {
 	global $ydb;
 	$table = YOURLS_DB_TABLE_USERS;
+    $boguspass = "XXXXXXXXXXXXXXXXXXXXXXXX";
+    $allowed = false;
+    $authenticated = false;
+    $authorized = false;
 
     if ( YOURLS_MULTIUSER_LDAP ) {	
-		/* LDAP auth code goes here */
 		$ldapOptions =  array(
 			'host' 		=>	YOURLS_MULTIUSER_LDAP_HOST,
 			'port'			=> 	YOURLS_MULTIUSER_LDAP_PORT,
@@ -159,11 +162,12 @@ function isValidUser($user, $pass) {
 		$ldapBind = ldap_bind( $ldapDS, $ldapUser, $pass );
 
 		if ( $ldapBind ) {
-			$boguspass = "XXXXXXXXXXXXXXXXXXXXXXXX";
 			/* we have a winner  */
+			$authenticated = true;
 			/* can they use the service based upon group membership */
-			$allowed = false;
-			if ( YOURLS_MULTIUSER_LDAP_RESTRICT ) {
+			if ( !YOURLS_MULTIUSER_LDAP_RESTRICT ) {
+				$authorized = true;
+			} else {
 				$ldapFilter = "(cn=*$user*)";
 				$ldapAttributes = array("mail", "memberof" );
 				$ldapSearchResults = ldap_Search( $ldapDS, $ldapUser, $ldapFilter );
@@ -171,30 +175,29 @@ function isValidUser($user, $pass) {
 				
 				foreach  ( $ldapInfo[0]['memberof'] as $grp ) {
 					if ( $grp == YOURLS_MULTIUSER_LDAP_GROUPNAME ) {
-						$allowed = true;
+						$authorized = true;
 						break;
 					}
 				}
-			} else {
-				$allowed = true;
 			}
 
 			/* Clean up ldap connection */
 			ldap_unbind( $ldapDS );
 			/* ldap_close( $ldapDS ); */
-			
-			if ( !$allowed ) {
-				return false;
-			}
+		} else {
+		    /* authentication failed */
+		    return false;
 		}
 		
-		/* are they in the local database? */
-		$results = $ydb->get_results("select user_token from `$table` where `user_email` = '$user' AND user_password = '$boguspass'");
-		if(empty($results)) {
-			/* user is not in the database, so insert them */
-			$ydb->query("insert into `$table` (user_email, user_password, user_token) values ('$user', '$boguspass', '".createRandonToken()."' )");
-		}
-		return true;
+		if ( $authenticated && $authorized ) {
+			/* are they in the local database? */
+			$results = $ydb->get_results("select user_token from `$table` where `user_email` = '$user' AND user_password = '$boguspass'");
+			if(empty($results)) {
+				/* user is not in the database, so insert them */
+				$ydb->query("insert into `$table` (user_email, user_password, user_token) values ('$user', '$boguspass', '".createRandonToken()."' )");
+			}
+			return true;
+		}	
 	} else {
 		/* see if we have a local account  */
 		$pass = md5($pass);
