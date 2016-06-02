@@ -1,6 +1,7 @@
 <?php
 session_start();
 include("../../../includes/load-yourls.php");
+include("mufunctions.php");
 include("muhtmlfunctions.php");
 
 if(YOURLS_PRIVATE === false) {
