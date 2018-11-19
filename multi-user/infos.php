@@ -1,9 +1,9 @@
 <?php
 // TODO: make things cleaner. This file is an awful HTML/PHP soup.
 define('YOURLS_INFOS', true);
-include  YOURLS_INC.'/load-yourls.php';
-include YOURLS_INC.'/functions-infos.php';
-include "muhtmlfunctions.php";
+include_once  YOURLS_INC.'/load-yourls.php';
+include_once YOURLS_INC.'/functions-infos.php';
+include_once "muhtmlfunctions.php";
 
 if(YOURLS_PRIVATE === false || !defined( 'YOURLS_ABSPATH' )) { 
 	die(); // NO DIRECT CALLS IF PUBLIC! 
