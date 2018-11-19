@@ -1,8 +1,8 @@
 <?php
 session_start();
-include("../../../includes/load-yourls.php");
-include("mufunctions.php");
-include("muhtmlfunctions.php");
+include_once("../../../includes/load-yourls.php");
+include_once("mufunctions.php");
+include_once("muhtmlfunctions.php");
 
 if(YOURLS_PRIVATE === false) {
 	die(); // NO DIRECT CALLS IF PUBLIC!
